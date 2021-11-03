@@ -1,6 +1,7 @@
 package info.tritusk.adventure.platform.forge.impl.audience;
 
 import info.tritusk.adventure.platform.forge.impl.ComponentWrapper;
+import info.tritusk.adventure.platform.forge.impl.ForgePlatform;
 import info.tritusk.adventure.platform.forge.impl.KeyMapper;
 import info.tritusk.adventure.platform.forge.impl.SoundMapper;
 import info.tritusk.adventure.platform.forge.impl.TextComponentMapper;
@@ -53,11 +54,11 @@ public class ServerPlayerAudience implements Audience {
 
     @Override
     public void sendMessage(@NotNull Identity source, @NotNull Component message, @NotNull MessageType type) {
-        final ITextComponent realMsg = new ComponentWrapper(message);
+        final ComponentWrapper realMsg = new ComponentWrapper(message);
         final ChatType chatType = type == MessageType.SYSTEM ? ChatType.SYSTEM : ChatType.CHAT;
         final ServerPlayerEntity p = this.player.get();
         if (p != null) {
-            p.sendMessage(realMsg, chatType, source.uuid());
+            p.sendMessage(realMsg.copy(), chatType, source.uuid());
         }
     }
 
@@ -66,7 +67,7 @@ public class ServerPlayerAudience implements Audience {
         final ITextComponent realMsg = new ComponentWrapper(message);
         final ServerPlayerEntity p = this.player.get();
         if (p != null) {
-            p.displayClientMessage(realMsg, true);
+            p.displayClientMessage(realMsg.copy(), true);
 
         }
     }

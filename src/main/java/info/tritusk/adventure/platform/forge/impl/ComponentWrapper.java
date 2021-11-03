@@ -83,7 +83,7 @@ public class ComponentWrapper implements ITextComponent {
 
     @Override
     public <T> Optional<T> visitSelf(ITextAcceptor<T> p_230533_1_) {
-        return ITextComponent.super.visitSelf(p_230533_1_);
+        return this.deepConverted.visitSelf(p_230533_1_);
     }
 
     @Override
