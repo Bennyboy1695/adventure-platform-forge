@@ -1,13 +1,12 @@
 package info.tritusk.adventure.platform.forge.impl;
 
+import java.util.List;
+import java.util.stream.Collectors;
 import net.kyori.adventure.inventory.Book;
 import net.minecraft.client.gui.screen.ReadBookScreen;
 import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.ITextProperties;
-import org.checkerframework.checker.nullness.qual.NonNull;
-
-import java.util.List;
-import java.util.stream.Collectors;
+import org.jetbrains.annotations.NotNull;
 
 public class AdventureBookInfo implements ReadBookScreen.IBookInfo {
 
@@ -25,7 +24,14 @@ public class AdventureBookInfo implements ReadBookScreen.IBookInfo {
     }
 
     @Override
-    public @NonNull ITextProperties func_230456_a_(int index) {
+    public @NotNull ITextProperties getPage(int index) {
         return this.pages.get(index);
     }
+
+    //TODO
+    @Override
+    public ITextProperties getPageRaw(int p_230456_1_) {
+        return null;
+    }
+
 }

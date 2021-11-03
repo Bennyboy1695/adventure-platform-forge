@@ -6,11 +6,11 @@ import net.minecraft.util.text.Color;
 public class ColorMapper {
 
     public static Color toNative(TextColor color) {
-        return Color.fromInt(color.value());
+        return Color.fromRgb(color.value());
     }
 
     public static TextColor toAdventure(Color color) {
-        return TextColor.color(color.getColor());
+        return TextColor.color(color.getValue());
     }
 
 }

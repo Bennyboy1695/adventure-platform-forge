@@ -1,12 +1,11 @@
 package info.tritusk.adventure.platform.forge.impl;
 
+import java.util.EnumMap;
 import net.kyori.adventure.sound.Sound;
 import net.minecraft.client.audio.ISound;
 import net.minecraft.client.audio.SimpleSound;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.SoundCategory;
-
-import java.util.EnumMap;
 
 public class SoundMapper {
 

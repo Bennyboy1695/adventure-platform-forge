@@ -11,9 +11,12 @@ public class StyleMapper {
 
     private static Boolean toNullableBoolean(TextDecoration.State state) {
         switch (state) {
-            case TRUE: return Boolean.TRUE;
-            case FALSE: return Boolean.FALSE;
-            default: return null; // Implied case NOT_SET
+            case TRUE:
+                return Boolean.TRUE;
+            case FALSE:
+                return Boolean.FALSE;
+            default:
+                return null; // Implied case NOT_SET
         }
     }
 
@@ -22,27 +25,27 @@ public class StyleMapper {
         if (style == null) {
             return nativeStyle;
         }
-        nativeStyle = nativeStyle.setBold(toNullableBoolean(style.decoration(TextDecoration.BOLD)))
-                .setItalic(toNullableBoolean(style.decoration(TextDecoration.ITALIC)))
-                .setObfuscated(toNullableBoolean(style.decoration(TextDecoration.OBFUSCATED)))
-                .setStrikethrough(toNullableBoolean(style.decoration(TextDecoration.STRIKETHROUGH)))
-                .setUnderlined(toNullableBoolean(style.decoration(TextDecoration.UNDERLINED)))
-                .setInsertion(style.insertion());
+        nativeStyle = nativeStyle.withBold(toNullableBoolean(style.decoration(TextDecoration.BOLD)))
+            .withItalic(toNullableBoolean(style.decoration(TextDecoration.ITALIC)))
+            .setObfuscated(toNullableBoolean(style.decoration(TextDecoration.OBFUSCATED)))
+            .setStrikethrough(toNullableBoolean(style.decoration(TextDecoration.STRIKETHROUGH)))
+            .setUnderlined(toNullableBoolean(style.decoration(TextDecoration.UNDERLINED)))
+            .withInsertion(style.insertion());
         TextColor color = style.color();
         if (color != null) {
-            nativeStyle = nativeStyle.setColor(ColorMapper.toNative(color));
+            nativeStyle = nativeStyle.withColor(ColorMapper.toNative(color));
         }
         Key fontId = style.font();
         if (fontId != null) {
-            nativeStyle = nativeStyle.setFontId(KeyMapper.toNative(fontId));
+            nativeStyle = nativeStyle.withFont(KeyMapper.toNative(fontId));
         }
         ClickEvent clickEvent = style.clickEvent();
         if (clickEvent != null) {
-            nativeStyle = nativeStyle.setClickEvent(ClickEventMapper.toNative(clickEvent));
+            nativeStyle = nativeStyle.withClickEvent(ClickEventMapper.toNative(clickEvent));
         }
         HoverEvent<?> hoverEvent = style.hoverEvent();
         if (hoverEvent != null) {
-            nativeStyle = nativeStyle.setHoverEvent(HoverEventMapper.toNative(hoverEvent));
+            nativeStyle = nativeStyle.withHoverEvent(HoverEventMapper.toNative(hoverEvent));
         }
         return nativeStyle;
     }

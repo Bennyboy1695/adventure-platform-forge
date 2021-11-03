@@ -1,15 +1,15 @@
-modLoader="javafml"
-loaderVersion="[35,)"
+modLoader = "javafml"
+loaderVersion = "[36,)"
 
-license="BSD-3-Clause"
+license = "BSD-3-Clause"
 
 [[mods]]
-modId="adventure-platform-forge"
-version="${file.jarVersion}"
-displayName="adventure-platform-forge"
+modId = "adventure-platform-forge"
+version = "${file.jarVersion}"
+displayName = "adventure-platform-forge"
 
-credits="KyoriPowered"
+credits = "KyoriPowered"
 
-authors="3TUSK"
+authors = "3TUSK,MojangPlsFix"
 
-description="Forge-adapter for adventure for those who want to use adventure on Forge alone."
+description = "Forge-adapter for adventure for those who want to use adventure on Forge alone."
