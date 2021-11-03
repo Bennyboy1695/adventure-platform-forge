@@ -16,7 +16,7 @@ public class ForgeClientAudiences {
 
     public Audience audience() {
         return new ClientAudience(this::getOrCreateFrom);
-    }    private final BossInfoListener listener = new BossInfoListener(this::getOrCreateFrom);
+    }
 
     private ClientBossInfo getOrCreateFrom(BossBar original) {
         return this.bossBars.computeIfAbsent(original, bar -> {
@@ -24,6 +24,8 @@ public class ForgeClientAudiences {
             return new ClientBossInfo(new SUpdateBossInfoPacket(SUpdateBossInfoPacket.Operation.ADD, BossBarMapper.toNative(bar)));
         });
     }
+
+    private final BossInfoListener listener = new BossInfoListener(this::getOrCreateFrom);
 
 
 }

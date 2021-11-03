@@ -29,13 +29,14 @@ public class ForgeServerAudiences implements AudienceProvider {
     private final MinecraftServer server;
     private final ServerAudience theServerAudience;
     private final IdentityHashMap<BossBar, ServerBossInfo> trackedBossBars = new IdentityHashMap<>();
+
     public ForgeServerAudiences(MinecraftServer server) {
         this.theServerAudience = new ServerAudience(this.server = server);
     }
 
     public static ForgeServerAudiences of() {
         return ForgePlatform.serverAudienceProvider; // TODO Throw exception when it is not ready
-    }    private final BossInfoListener listener = new BossInfoListener(this::getOrCreateFrom);
+    }
 
     public ServerBossInfo getOrCreateFrom(BossBar bossBar) {
         return this.trackedBossBars.computeIfAbsent(bossBar, bar -> {
@@ -47,7 +48,7 @@ public class ForgeServerAudiences implements AudienceProvider {
     @Override
     public @NotNull Audience all() {
         return Audience.audience(this.players(), this.console());
-    }
+    }    private final BossInfoListener listener = new BossInfoListener(this::getOrCreateFrom);
 
     @Override
     public @NotNull Audience console() {
@@ -89,13 +90,15 @@ public class ForgeServerAudiences implements AudienceProvider {
 
     @Override
     public @NotNull ComponentFlattener flattener() {
-        return null;
+        return ForgePlatform.FLATTENER;
     }
 
     @Override
     public void close() {
         // TODO What kind of clean up do we need here?
     }
+
+
 
 
 }
