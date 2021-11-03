@@ -6,6 +6,8 @@ import net.minecraft.client.audio.ISound;
 import net.minecraft.client.audio.SimpleSound;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.SoundCategory;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
 
 public class SoundMapper {
 
@@ -30,10 +32,12 @@ public class SoundMapper {
         return ADVENTURE_TYPE_TO_NATIVE.get(source);
     }
 
+    @OnlyIn(Dist.CLIENT)
     public static ISound toNative(Sound sound) {
         return toNative(sound, 0D, 0D, 0D, false);
     }
 
+    @OnlyIn(Dist.CLIENT)
     public static ISound toNative(Sound sound, double x, double y, double z, boolean global) {
         final ResourceLocation id = KeyMapper.toNative(sound.name());
         final SoundCategory category = toNative(sound.source());
