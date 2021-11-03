@@ -90,8 +90,8 @@ public class ServerPlayerAudience implements Audience {
         final ITextComponent realFooter = new ComponentWrapper(footer);
         final SPlayerListHeaderFooterPacket packet = new SPlayerListHeaderFooterPacket();
         final PacketBuffer bridge = new PacketBuffer(Unpooled.buffer())
-            .writeComponent(realHeader)
-            .writeComponent(realFooter);
+            .writeComponent(realHeader.copy())
+            .writeComponent(realFooter.copy());
         try {
             // TODO Stop it, this is !@*#!@%#(!&@#)(! go use access transformer
             bridge.resetReaderIndex();

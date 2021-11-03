@@ -23,6 +23,8 @@ import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.event.server.FMLServerAboutToStartEvent;
 import net.minecraftforge.fml.event.server.FMLServerStoppingEvent;
 import net.minecraftforge.fml.loading.FMLLoader;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.jetbrains.annotations.NotNull;
 
 @Mod("adventure-platform-forge")
@@ -32,6 +34,8 @@ public class ForgePlatform {
     public static final ComponentFlattener FLATTENER;
     private static final Pattern LOCALIZATION_PATTERN = Pattern.compile("%(?:(\\d+)\\$)?s");
     public static ForgeServerAudiences serverAudienceProvider;
+
+    public static final Logger LOGGER = LogManager.getLogger();
 
     static {
         final ComponentFlattener.Builder flattenerBuilder = ComponentFlattener.basic().toBuilder();

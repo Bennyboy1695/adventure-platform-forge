@@ -31,6 +31,7 @@ public class StyleMapper {
             .setStrikethrough(toNullableBoolean(style.decoration(TextDecoration.STRIKETHROUGH)))
             .setUnderlined(toNullableBoolean(style.decoration(TextDecoration.UNDERLINED)))
             .withInsertion(style.insertion());
+
         TextColor color = style.color();
         if (color != null) {
             nativeStyle = nativeStyle.withColor(ColorMapper.toNative(color));
@@ -47,6 +48,7 @@ public class StyleMapper {
         if (hoverEvent != null) {
             nativeStyle = nativeStyle.withHoverEvent(HoverEventMapper.toNative(hoverEvent));
         }
+
         return nativeStyle;
     }
 }
