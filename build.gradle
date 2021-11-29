@@ -95,14 +95,47 @@ jar.finalizedBy('reobfJar')
 
 
 publishing {
-    publications {
-        mavenJava(MavenPublication) {
-            artifact jar
-        }
-    }
     repositories {
         maven {
-            url "file:///${project.projectDir}/mcmodsrepo"
+            name = "GitHubPackages"
+            url = uri("https://maven.pkg.github.com/OWNER/REPOSITORY")
+            credentials {
+                username = project.findProperty("gpr.user") ?: System.getenv("USERNAME")
+                password = project.findProperty("gpr.key") ?: System.getenv("TOKEN")
+            }
+        }
+    }
+    publications {
+        release(MavenPublication) {
+            groupId = "info.tritusk.adventure"
+            artifactId = "adventure-platform-forge"
+
+            artifact jar
+            pom {
+                name = 'adventure-platform-forge'
+                description = 'Integration between adventure and Forge platform.'
+                url = 'https://github.com/3TUSK/adventure-platform-forge'
+                licenses {
+                    license {
+                        name = 'BSD-3-clause'
+                        url = 'https://github.com/3TUSK/adventure-platform-forge/blob/bleeding/LICENSE'
+                    }
+                }
+                developers {
+                    developer {
+                        id = '3TUSK'
+                        name = '3TUSK'
+                    }
+                    developer {
+                        id = 'MojangPlsFix'
+                        name = 'MojangPlsFix'
+                    }
+                }
+                issueManagement {
+                    system = 'GitHub Issues'
+                    url = 'https://github.com/fabrossmann/adventure-platform-forge'
+                }
+            }
         }
     }
 }
