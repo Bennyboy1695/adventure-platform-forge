@@ -4,14 +4,16 @@ import java.time.temporal.ChronoUnit
 
 buildscript {
     repositories {
-        maven { url = 'https://files.minecraftforge.net/maven' }
+        maven { url = 'https://maven.minecraftforge.net' }
         mavenCentral()
     }
     dependencies {
-        classpath group: 'net.minecraftforge.gradle', name: 'ForgeGradle', version: '3.+', changing: true
+        classpath group: 'net.minecraftforge.gradle', name: 'ForgeGradle', version: '5.1.+', changing: true
     }
 }
+
 apply plugin: 'net.minecraftforge.gradle'
+// Only edit below this line, the above code adds and enables the necessary things for Forge to be setup.
 apply plugin: 'eclipse'
 apply plugin: 'maven-publish'
 
@@ -19,18 +21,16 @@ version = '0.1.0'
 group = 'info.tritusk.adventure'
 archivesBaseName = 'adventure-platform-forge'
 
-sourceCompatibility = targetCompatibility = JavaVersion.VERSION_1_8
+java.toolchain.languageVersion = JavaLanguageVersion.of(8)
 
-compileJava {
-    sourceCompatibility = targetCompatibility = JavaVersion.VERSION_1_8
-}
-
+println('Java: ' + System.getProperty('java.version') + ' JVM: ' + System.getProperty('java.vm.version') + '(' + System.getProperty('java.vendor') + ') Arch: ' + System.getProperty('os.arch'))
 minecraft {
-    mappings channel: 'snapshot', version: '20201028-1.16.3'
-    
+    mappings channel: 'official', version: '1.16.5'
+
     runs {
         client {
-            workingDirectory project.file('run_client') 
+            workingDirectory project.file('run_client')
+            property 'forge.logging.markers', 'REGISTRIES'
             property 'forge.logging.console.level', 'info'
             mods {
                 adventure_platform_forge {
@@ -43,6 +43,7 @@ minecraft {
         }
         server {
             workingDirectory project.file('run_server')
+            property 'forge.logging.markers', 'REGISTRIES'
             property 'forge.logging.console.level', 'info'
             mods {
                 adventure_platform_forge {
@@ -57,6 +58,8 @@ minecraft {
     }
 }
 
+sourceSets.main.resources { srcDir 'src/generated/resources' }
+
 repositories {
     mavenCentral()
     maven {
@@ -66,28 +69,47 @@ repositories {
 }
 
 dependencies {
-    minecraft 'net.minecraftforge:forge:1.16.4-35.1.0'
+    minecraft 'net.minecraftforge:forge:1.16.5-36.2.8'
 
-    implementation "net.kyori:adventure-api:4.4.0"
-    implementation "net.kyori:adventure-platform-api:4.0.0-SNAPSHOT"
-    implementation "net.kyori:adventure-text-serializer-plain:4.6.0-SNAPSHOT"
+    implementation "net.kyori:adventure-api:4.9.3"
+    implementation "net.kyori:adventure-key:4.9.3"
+    implementation "net.kyori:adventure-platform-api:4.0.0"
+    implementation "net.kyori:adventure-text-serializer-plain:4.9.3"
 }
 
 jar {
     manifest {
         attributes([
-            "Specification-Title": "adventure",
-            "Specification-Vendor": "KyoriPowered",
-            "Specification-Version": "1",
-            "Implementation-Title": project.name,
-            "Implementation-Version": "${version}",
-            "Implementation-Vendor": "3TUSK",
-            "Implementation-Timestamp": DateTimeFormatter.ISO_INSTANT.format(Instant.now().truncatedTo(ChronoUnit.SECONDS))
+                "Specification-Title"     : "adventure",
+                "Specification-Vendor"    : "KyoriPowered",
+                "Specification-Version"   : "1",
+                "Implementation-Title"    : project.name,
+                "Implementation-Version"  : "${version}",
+                "Implementation-Vendor"   : "3TUSK",
+                "Implementation-Timestamp": DateTimeFormatter.ISO_INSTANT.format(Instant.now().truncatedTo(ChronoUnit.SECONDS))
         ])
     }
 }
 
 jar.finalizedBy('reobfJar')
+
+
+publishing {
+    publications {
+        mavenJava(MavenPublication) {
+            artifact jar
+        }
+    }
+    repositories {
+        maven {
+            url "file:///${project.projectDir}/mcmodsrepo"
+        }
+    }
+}
+
+
+/*
+
 publish.dependsOn('reobfJar')
 
 publishing {
@@ -142,18 +164,20 @@ tasks.withType(PublishToMavenRepository) {
         System.env.MAVEN_USERNAME && System.env.MAVEN_PASSWORD
     }
 }
-
+*/
 /**
  * A simple task to pass down the artifact name and path to other GitHub actions.
  */
+/*
 task("githubActionOutput") {
-    onlyIf {
-        System.env.GITHUB_ACTIONS
-    }
-    doLast {
-        // getArchiveFile was introduced in Gradle 5.1 so we can't use it in 4.10.3
-        // https://docs.gradle.org/current/javadoc/org/gradle/api/tasks/bundling/AbstractArchiveTask.html#getArchiveFile--
-        println "::set-output name=artifact_path::${jar.archivePath.absolutePath}"
-        println "::set-output name=artifact_name::${jar.archiveName}"
-    }
+   onlyIf {
+       System.env.GITHUB_ACTIONS
+   }
+   doLast {
+       // getArchiveFile was introduced in Gradle 5.1 so we can't use it in 4.10.3
+       // https://docs.gradle.org/current/javadoc/org/gradle/api/tasks/bundling/AbstractArchiveTask.html#getArchiveFile--
+       println "::set-output name=artifact_path::${jar.archivePath.absolutePath}"
+       println "::set-output name=artifact_name::${jar.archiveName}"
+   }
 }
+*/

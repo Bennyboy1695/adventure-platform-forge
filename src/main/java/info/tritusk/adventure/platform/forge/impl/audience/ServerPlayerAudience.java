@@ -1,10 +1,14 @@
 package info.tritusk.adventure.platform.forge.impl.audience;
 
 import info.tritusk.adventure.platform.forge.impl.ComponentWrapper;
+import info.tritusk.adventure.platform.forge.impl.ForgePlatform;
 import info.tritusk.adventure.platform.forge.impl.KeyMapper;
 import info.tritusk.adventure.platform.forge.impl.SoundMapper;
 import info.tritusk.adventure.platform.forge.impl.TextComponentMapper;
 import io.netty.buffer.Unpooled;
+import java.io.IOException;
+import java.lang.ref.WeakReference;
+import java.util.function.Function;
 import net.kyori.adventure.audience.Audience;
 import net.kyori.adventure.audience.MessageType;
 import net.kyori.adventure.bossbar.BossBar;
@@ -13,7 +17,7 @@ import net.kyori.adventure.inventory.Book;
 import net.kyori.adventure.sound.Sound;
 import net.kyori.adventure.sound.SoundStop;
 import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.serializer.plain.PlainComponentSerializer;
+import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
 import net.kyori.adventure.title.Title;
 import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraft.item.ItemStack;
@@ -33,11 +37,7 @@ import net.minecraft.util.text.ChatType;
 import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.StringTextComponent;
 import net.minecraft.world.server.ServerBossInfo;
-import org.checkerframework.checker.nullness.qual.NonNull;
-
-import java.io.IOException;
-import java.lang.ref.WeakReference;
-import java.util.function.Function;
+import org.jetbrains.annotations.NotNull;
 
 /**
  * An {@link Audience} that represents a particular online player.
@@ -53,48 +53,49 @@ public class ServerPlayerAudience implements Audience {
     }
 
     @Override
-    public void sendMessage(@NonNull Identity source, @NonNull Component message, @NonNull MessageType type) {
-        final ITextComponent realMsg = new ComponentWrapper(message);
+    public void sendMessage(@NotNull Identity source, @NotNull Component message, @NotNull MessageType type) {
+        final ComponentWrapper realMsg = new ComponentWrapper(message);
         final ChatType chatType = type == MessageType.SYSTEM ? ChatType.SYSTEM : ChatType.CHAT;
         final ServerPlayerEntity p = this.player.get();
         if (p != null) {
-            p.func_241151_a_(realMsg, chatType, source.uuid());
+            p.sendMessage(realMsg.copy(), chatType, source.uuid());
         }
     }
 
     @Override
-    public void sendActionBar(@NonNull Component message) {
+    public void sendActionBar(@NotNull Component message) {
         final ITextComponent realMsg = new ComponentWrapper(message);
         final ServerPlayerEntity p = this.player.get();
         if (p != null) {
-            p.sendStatusMessage(realMsg, true);
+            p.displayClientMessage(realMsg.copy(), true);
+
         }
     }
 
     @Override
-    public void sendPlayerListHeader(@NonNull Component header) {
+    public void sendPlayerListHeader(@NotNull Component header) {
         // TODO We might want to preserve the old footer
         this.sendPlayerListHeaderAndFooter(header, Component.empty());
     }
 
     @Override
-    public void sendPlayerListFooter(@NonNull Component footer) {
+    public void sendPlayerListFooter(@NotNull Component footer) {
         // TODO We might want to preserve the old header
         this.sendPlayerListHeaderAndFooter(Component.empty(), footer);
     }
 
     @Override
-    public void sendPlayerListHeaderAndFooter(@NonNull Component header, @NonNull Component footer) {
+    public void sendPlayerListHeaderAndFooter(@NotNull Component header, @NotNull Component footer) {
         final ITextComponent realHeader = new ComponentWrapper(header);
         final ITextComponent realFooter = new ComponentWrapper(footer);
         final SPlayerListHeaderFooterPacket packet = new SPlayerListHeaderFooterPacket();
         final PacketBuffer bridge = new PacketBuffer(Unpooled.buffer())
-                .writeTextComponent(realHeader)
-                .writeTextComponent(realFooter);
+            .writeComponent(realHeader.copy())
+            .writeComponent(realFooter.copy());
         try {
             // TODO Stop it, this is !@*#!@%#(!&@#)(! go use access transformer
             bridge.resetReaderIndex();
-            packet.readPacketData(bridge);
+            packet.read(bridge);
         } catch (IOException e) {
             throw new RuntimeException("YELL AT THE AUTHOR TO ACTUALLY USE ACCESS TRANSFORMER", e);
         } finally {
@@ -102,12 +103,12 @@ public class ServerPlayerAudience implements Audience {
         }
         final ServerPlayerEntity p = this.player.get();
         if (p != null) {
-            p.connection.sendPacket(packet);
+            p.connection.send(packet);
         }
     }
 
     @Override
-    public void showTitle(@NonNull Title title) {
+    public void showTitle(@NotNull Title title) {
         Title.Times titleTimes = title.times();
         if (titleTimes == null) {
             // How are you suppose to handle this case anyway?
@@ -115,9 +116,10 @@ public class ServerPlayerAudience implements Audience {
         } else {
             final ServerPlayerEntity p = this.player.get();
             if (p != null) {
-                p.connection.sendPacket(new STitlePacket(STitlePacket.Type.TITLE, TextComponentMapper.toNative(title.title())));
-                p.connection.sendPacket(new STitlePacket(STitlePacket.Type.SUBTITLE, TextComponentMapper.toNative(title.subtitle())));
-                p.connection.sendPacket(new STitlePacket((int)titleTimes.fadeIn().toMillis() / 50, (int)titleTimes.stay().toMillis() / 50, (int)titleTimes.fadeOut().toMillis() / 50));
+                p.connection.send(new STitlePacket(STitlePacket.Type.TITLE, TextComponentMapper.toNative(title.title())));
+                p.connection.send(new STitlePacket(STitlePacket.Type.SUBTITLE, TextComponentMapper.toNative(title.subtitle())));
+                p.connection.send(new STitlePacket((int) titleTimes.fadeIn().toMillis() / 50, (int) titleTimes.stay().toMillis() / 50,
+                    (int) titleTimes.fadeOut().toMillis() / 50));
             }
         }
     }
@@ -126,7 +128,7 @@ public class ServerPlayerAudience implements Audience {
     public void clearTitle() {
         final ServerPlayerEntity p = this.player.get();
         if (p != null) {
-            p.connection.sendPacket(new STitlePacket(STitlePacket.Type.CLEAR, StringTextComponent.EMPTY));
+            p.connection.send(new STitlePacket(STitlePacket.Type.CLEAR, StringTextComponent.EMPTY));
         }
     }
 
@@ -134,12 +136,12 @@ public class ServerPlayerAudience implements Audience {
     public void resetTitle() {
         final ServerPlayerEntity p = this.player.get();
         if (p != null) {
-            p.connection.sendPacket(new STitlePacket(STitlePacket.Type.RESET, StringTextComponent.EMPTY));
+            p.connection.send(new STitlePacket(STitlePacket.Type.RESET, StringTextComponent.EMPTY));
         }
     }
 
     @Override
-    public void showBossBar(@NonNull BossBar bar) {
+    public void showBossBar(@NotNull BossBar bar) {
         final ServerPlayerEntity p = this.player.get();
         if (p != null) {
             final ServerBossInfo nativeBossInfo = this.bossBarMapper.apply(bar);
@@ -148,7 +150,7 @@ public class ServerPlayerAudience implements Audience {
     }
 
     @Override
-    public void hideBossBar(@NonNull BossBar bar) {
+    public void hideBossBar(@NotNull BossBar bar) {
         final ServerPlayerEntity p = this.player.get();
         if (p != null) {
             final ServerBossInfo nativeBossInfo = this.bossBarMapper.apply(bar);
@@ -157,39 +159,39 @@ public class ServerPlayerAudience implements Audience {
     }
 
     @Override
-    public void playSound(@NonNull Sound sound) {
+    public void playSound(@NotNull Sound sound) {
         final ServerPlayerEntity p = this.player.get();
         if (p != null) {
-            p.connection.sendPacket(new SPlaySoundPacket(KeyMapper.toNative(sound.name()), SoundMapper.toNative(sound.source()),
-                    p.getPositionVec(), sound.volume(), sound.pitch()));
+            p.connection.send(new SPlaySoundPacket(KeyMapper.toNative(sound.name()), SoundMapper.toNative(sound.source()),
+                p.position(), sound.volume(), sound.pitch()));
         }
     }
 
     @Override
-    public void playSound(@NonNull Sound sound, double x, double y, double z) {
+    public void playSound(@NotNull Sound sound, double x, double y, double z) {
         final ServerPlayerEntity p = this.player.get();
         if (p != null) {
-            p.connection.sendPacket(new SPlaySoundPacket(KeyMapper.toNative(sound.name()), SoundMapper.toNative(sound.source()),
-                    new Vector3d(x, y, z), sound.volume(), sound.pitch()));
+            p.connection.send(new SPlaySoundPacket(KeyMapper.toNative(sound.name()), SoundMapper.toNative(sound.source()),
+                new Vector3d(x, y, z), sound.volume(), sound.pitch()));
         }
     }
 
     @Override
-    public void stopSound(@NonNull SoundStop stop) {
+    public void stopSound(@NotNull SoundStop stop) {
         final ServerPlayerEntity p = this.player.get();
         if (p != null) {
-            p.connection.sendPacket(new SStopSoundPacket(KeyMapper.toNative(stop.sound()), SoundMapper.toNative(stop.source())));
+            p.connection.send(new SStopSoundPacket(KeyMapper.toNative(stop.sound()), SoundMapper.toNative(stop.source())));
         }
     }
 
     @Override
-    public void openBook(@NonNull Book book) {
+    public void openBook(@NotNull Book book) {
         final ServerPlayerEntity p = this.player.get();
         if (p != null) {
             final ItemStack fakeBookItem = new ItemStack(Items.WRITTEN_BOOK);
             final CompoundNBT data = fakeBookItem.getOrCreateTag();
-            data.putString("title", PlainComponentSerializer.plain().serialize(book.title()));
-            data.putString("author", PlainComponentSerializer.plain().serialize(book.author()));
+            data.putString("title", PlainTextComponentSerializer.plainText().serialize(book.title()));
+            data.putString("author", PlainTextComponentSerializer.plainText().serialize(book.author()));
             final ListNBT pages = new ListNBT();
             for (Component page : book.pages()) {
                 pages.add(StringNBT.valueOf(ITextComponent.Serializer.toJson(TextComponentMapper.toNative(page))));
@@ -198,10 +200,10 @@ public class ServerPlayerAudience implements Audience {
             data.putBoolean("resolved", true);
 
             // Hack: swap out the item on main hand to trick Minecraft to open the book, then swap back
-            final ItemStack previous = p.getHeldItemMainhand();
-            p.connection.sendPacket(new SSetSlotPacket(-2, p.inventory.currentItem, fakeBookItem));
-            p.openBook(fakeBookItem, Hand.MAIN_HAND);
-            p.connection.sendPacket(new SSetSlotPacket(-2, p.inventory.currentItem, previous));
+            final ItemStack previous = p.getMainHandItem();
+            p.connection.send(new SSetSlotPacket(-2, p.inventory.selected, fakeBookItem));
+            p.openItemGui(fakeBookItem, Hand.MAIN_HAND);
+            p.connection.send(new SSetSlotPacket(-2, p.inventory.selected, previous));
         }
     }
 }

@@ -6,7 +6,7 @@ import net.kyori.adventure.audience.MessageType;
 import net.kyori.adventure.identity.Identity;
 import net.kyori.adventure.text.Component;
 import net.minecraft.server.MinecraftServer;
-import org.checkerframework.checker.nullness.qual.NonNull;
+import org.jetbrains.annotations.NotNull;
 
 /**
  * An {@link Audience} that represents the server console.
@@ -20,7 +20,7 @@ public class ServerAudience implements Audience {
     }
 
     @Override
-    public void sendMessage(final @NonNull Identity source, final @NonNull Component message, final @NonNull MessageType type) {
+    public void sendMessage(final @NotNull Identity source, final @NotNull Component message, final @NotNull MessageType type) {
         // TODO Should we somehow display the source? By default, it only prints out the message.
         theServer.sendMessage(TextComponentMapper.toNative(message), source.uuid());
     }

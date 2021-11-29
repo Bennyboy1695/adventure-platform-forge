@@ -1,8 +1,7 @@
 package info.tritusk.adventure.platform.forge.impl;
 
-import net.minecraft.util.text.event.ClickEvent;
-
 import java.util.EnumMap;
+import net.minecraft.util.text.event.ClickEvent;
 
 public class ClickEventMapper {
 

@@ -35,7 +35,7 @@ public interface ComponentVisitor {
             this.accept((TranslatableComponent) c);
         }
     }
-    
+
     default void accept(BlockNBTComponent c) {
         c.children().forEach(this::accept);
     }
@@ -43,11 +43,11 @@ public interface ComponentVisitor {
     default void accept(EntityNBTComponent c) {
         c.children().forEach(this::accept);
     }
-    
+
     default void accept(KeybindComponent c) {
         c.children().forEach(this::accept);
     }
-    
+
     default void accept(ScoreComponent c) {
         c.children().forEach(this::accept);
     }
@@ -55,11 +55,11 @@ public interface ComponentVisitor {
     default void accept(SelectorComponent c) {
         c.children().forEach(this::accept);
     }
-    
+
     default void accept(StorageNBTComponent c) {
         c.children().forEach(this::accept);
     }
-    
+
     default void accept(TextComponent c) {
         c.children().forEach(this::accept);
     }

@@ -28,10 +28,6 @@ public class ToNativeConverter implements ComponentVisitor {
 
     private IFormattableTextComponent nativeComponent;
 
-    public IFormattableTextComponent getNative() {
-        return this.nativeComponent;
-    }
-
     private static IFormattableTextComponent handleStyleAndChildren(Component original, IFormattableTextComponent converted) {
         converted.setStyle(StyleMapper.toNative(original.style()));
         for (Component child : original.children()) {
@@ -40,6 +36,10 @@ public class ToNativeConverter implements ComponentVisitor {
             converted.append(converter.nativeComponent);
         }
         return converted;
+    }
+
+    public IFormattableTextComponent getNative() {
+        return this.nativeComponent;
     }
 
     @Override
