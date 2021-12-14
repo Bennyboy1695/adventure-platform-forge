@@ -18,8 +18,9 @@ apply plugin: 'net.minecraftforge.gradle'
 // Only edit below this line, the above code adds and enables the necessary things for Forge to be setup.
 apply plugin: 'eclipse'
 apply plugin: 'maven-publish'
+apply plugin: "com.github.johnrengelman.shadow"
 
-version = '0.1.1'
+version = '0.1.2'
 group = 'info.tritusk.adventure'
 archivesBaseName = 'adventure-platform-forge'
 
@@ -83,6 +84,24 @@ dependencies {
     shade "net.kyori:adventure-platform-api:4.0.0"
     shade "net.kyori:adventure-text-serializer-plain:4.9.3"
 }
+
+shadowJar {
+    configurations = [project.configurations.shade]
+    relocate 'net.kyori.adventure', 'info.tritusk.adventure.platform.forge.lib.adventure'
+}
+
+artifacts {
+    archives shadowJar
+    shadow shadowJar
+}
+
+reobf {
+    shadowJar {
+        dependsOn createMcpToSrg
+        mappings = createMcpToSrg.outputs.files.singleFile
+    }
+}
+
 
 jar {
     manifest {
