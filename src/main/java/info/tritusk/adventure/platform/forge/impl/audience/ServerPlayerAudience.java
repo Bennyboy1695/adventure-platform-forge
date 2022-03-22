@@ -1,7 +1,6 @@
 package info.tritusk.adventure.platform.forge.impl.audience;
 
 import info.tritusk.adventure.platform.forge.impl.ComponentWrapper;
-import info.tritusk.adventure.platform.forge.impl.ForgePlatform;
 import info.tritusk.adventure.platform.forge.impl.KeyMapper;
 import info.tritusk.adventure.platform.forge.impl.SoundMapper;
 import info.tritusk.adventure.platform.forge.impl.TextComponentMapper;
@@ -14,11 +13,14 @@ import net.kyori.adventure.audience.MessageType;
 import net.kyori.adventure.bossbar.BossBar;
 import net.kyori.adventure.identity.Identity;
 import net.kyori.adventure.inventory.Book;
+import net.kyori.adventure.permission.PermissionChecker;
+import net.kyori.adventure.pointer.Pointers;
 import net.kyori.adventure.sound.Sound;
 import net.kyori.adventure.sound.SoundStop;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
 import net.kyori.adventure.title.Title;
+import net.kyori.adventure.util.TriState;
 import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
@@ -37,6 +39,7 @@ import net.minecraft.util.text.ChatType;
 import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.StringTextComponent;
 import net.minecraft.world.server.ServerBossInfo;
+import net.minecraftforge.server.permission.PermissionAPI;
 import org.jetbrains.annotations.NotNull;
 
 /**
@@ -205,5 +208,15 @@ public class ServerPlayerAudience implements Audience {
             p.openItemGui(fakeBookItem, Hand.MAIN_HAND);
             p.connection.send(new SSetSlotPacket(-2, p.inventory.selected, previous));
         }
+    }
+
+    @Override
+    public @NotNull Pointers pointers() {
+        final Pointers.Builder builder = Pointers.builder();
+        builder.withStatic(Identity.UUID, player.get().getUUID());
+        builder.withDynamic(Identity.NAME, () -> player.get().getName().getString());
+        builder.withDynamic(Identity.DISPLAY_NAME, () ->  ((ComponentWrapper) player.get().getDisplayName()).getWrapped());
+        builder.withStatic(PermissionChecker.POINTER, permission -> PermissionAPI.hasPermission(player.get(), permission) ? TriState.TRUE : TriState.FALSE);
+        return builder.build();
     }
 }
