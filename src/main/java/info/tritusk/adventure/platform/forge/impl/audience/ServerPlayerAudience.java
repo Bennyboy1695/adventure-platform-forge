@@ -215,7 +215,7 @@ public class ServerPlayerAudience implements Audience {
         final Pointers.Builder builder = Pointers.builder();
         builder.withStatic(Identity.UUID, player.get().getUUID());
         builder.withDynamic(Identity.NAME, () -> player.get().getName().getString());
-        builder.withDynamic(Identity.DISPLAY_NAME, () ->  ((ComponentWrapper) player.get().getDisplayName()).getWrapped());
+        builder.withDynamic(Identity.DISPLAY_NAME, () ->  TextComponentMapper.fromNative(player.get().getDisplayName()));
         builder.withStatic(PermissionChecker.POINTER, permission -> PermissionAPI.hasPermission(player.get(), permission) ? TriState.TRUE : TriState.FALSE);
         return builder.build();
     }

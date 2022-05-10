@@ -79,10 +79,11 @@ configurations {
 dependencies {
     minecraft 'net.minecraftforge:forge:1.16.5-36.2.8'
 
-    shade "net.kyori:adventure-api:4.9.3"
-    shade "net.kyori:adventure-key:4.9.3"
-    shade "net.kyori:adventure-platform-api:4.0.0"
-    shade "net.kyori:adventure-text-serializer-plain:4.9.3"
+    shade "net.kyori:adventure-api:4.10.1"
+    shade "net.kyori:adventure-key:4.10.1"
+    shade "net.kyori:adventure-platform-api:4.1.0"
+    shade "net.kyori:adventure-text-serializer-plain:4.10.1"
+    shade "net.kyori:adventure-text-serializer-gson:4.10.1"
 }
 
 shadowJar {
